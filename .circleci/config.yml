@@ -26,7 +26,7 @@ jobs:
       - checkout
       - pop
       - android/run-tests:
-          test-command: ./gradlew testDebug
+          test-command: ./gradlew test
       - push
       - run:
           name: Save test results
@@ -48,7 +48,7 @@ jobs:
       - checkout
       - pop
       - android/start-emulator-and-run-tests:
-          test-command: ./gradlew connectedDebugAndroidTest
+          test-command: ./gradlew connectedAndroidTest
           system-image: system-images;android-30;google_apis;x86
       - push
       - run:
