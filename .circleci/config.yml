@@ -10,7 +10,7 @@ jobs:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: 2022.04
+      tag: '2022.04'
     steps:
       - checkout
       - android/restore-gradle-cache
@@ -34,7 +34,7 @@ jobs:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: 2022.04
+      tag: '2022.04'
     steps:
       - checkout
       - android/restore-gradle-cache
