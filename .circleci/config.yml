@@ -3,20 +3,31 @@
 version: 2.1
 
 orbs:
-  android: circleci/android@2.0.3
+  android: circleci/android@1.0.3
+
+commands:
+  pop:
+    description: "Restore build and gradle cache"
+    steps:
+      - android/restore-gradle-cache
+      - android/restore-build-cache
+  push:
+    description: "Create build and gradle cache"
+    steps:
+      - android/save-gradle-cache
+      - android/save-build-cache
 
 jobs:
   unit-test:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: "2022.04"
     steps:
       - checkout
-      - android/restore-gradle-cache
-      - android/restore-build-cache
+      - pop
       - android/run-tests:
           test-command: ./gradlew testDebug
+      - push
       - run:
           name: Save test results
           command: |
@@ -27,21 +38,19 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
-      - android/save-gradle-cache
-      - android/save-build-cache
+
 
   android-test:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: "2022.04"
     steps:
       - checkout
-      - android/restore-gradle-cache
-      - android/restore-build-cache
+      - pop
       - android/start-emulator-and-run-tests:
           test-command: ./gradlew connectedDebugAndroidTest
           system-image: system-images;android-30;google_apis;x86
+      - push
       - run:
           name: Save test results
           command: |
@@ -52,8 +61,6 @@ jobs:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
-      - android/save-gradle-cache
-      - android/save-build-cache
 
   release-build:
     executor:
@@ -62,8 +69,7 @@ jobs:
       tag: 2022.04
     steps:
       - checkout
-      - android/restore-gradle-cache
-      - android/restore-build-cache
+      - pop
       - run:
           name: Assemble release build
           command: |
