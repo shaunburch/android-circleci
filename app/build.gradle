@@ -26,11 +26,7 @@ android {
         }
         debug {
             debuggable true
-            applicationIdSuffix ".dev"
-        }
-        staging {
-            initWith debug
-            applicationIdSuffix ".staging"
+            versionNameSuffix "-dev"
         }
     }
     flavorDimensions "lane"
@@ -38,6 +34,7 @@ android {
         // Feature builds
         review {
             versionNameSuffix "-review"
+            applicationIdSuffix ".review"
         }
         // Snapshot of develop / main
         snapshot {
