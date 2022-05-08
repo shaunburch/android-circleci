@@ -39,7 +39,6 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-
   android-test:
     executor:
       name: android/android-machine
@@ -62,18 +61,20 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-  release-build:
+  build:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: 2022.04
+    parameters:
+      task:
+        type: string
     steps:
       - checkout
       - pop
       - run:
           name: Assemble release build
           command: |
-            ./gradlew assembleRelease
+            ./gradlew << parameters.task >> -PversionName=$CIRCLE_TAG -PversionCode=$CIRCLE_BUILD_NUM
       - store_artifacts:
           path: app/build/outputs/apk/release
 
@@ -81,3 +82,21 @@ workflows:
   commit:
     jobs:
       - unit-test
+  buildReview:
+    jobs:
+      - unit-test
+      - android-test
+      - build:
+          task: assembleReview
+  buildSnapshot:
+    jobs:
+      - unit-test
+      - android-test
+      - build:
+          task: assembleSnapshot
+  buildRelease:
+    jobs:
+      - unit-test
+      - android-test
+      - build:
+          task: assembleRelease
