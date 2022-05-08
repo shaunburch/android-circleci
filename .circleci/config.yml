@@ -88,15 +88,24 @@ workflows:
       - android-test
       - build:
           task: assembleReview
+          requires:
+            - unit-test
+            - android-test
   buildSnapshot:
     jobs:
       - unit-test
       - android-test
       - build:
           task: assembleSnapshot
+          requires:
+            - unit-test
+            - android-test
   buildRelease:
     jobs:
       - unit-test
       - android-test
       - build:
           task: assembleRelease
+          requires:
+            - unit-test
+            - android-test
