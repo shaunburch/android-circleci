@@ -26,18 +26,15 @@ android {
         }
         debug {
             debuggable true
-            versionNameSuffix "-dev"
         }
-    }
-    flavorDimensions "lane"
-    productFlavors {
-        // Feature builds
         review {
+            initWith release
             versionNameSuffix "-review"
             applicationIdSuffix ".review"
         }
         // Snapshot of develop / main
         snapshot {
+            initWith release
             versionNameSuffix "-SNAPSHOT"
         }
     }
