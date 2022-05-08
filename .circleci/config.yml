@@ -91,6 +91,10 @@ workflows:
           requires:
             - unit-test
             - android-test
+          filters:
+            branches:
+              ignore:
+                - main
   buildSnapshot:
     jobs:
       - unit-test
@@ -100,6 +104,10 @@ workflows:
           requires:
             - unit-test
             - android-test
+          filters:
+            branches:
+              only:
+                - main
   buildRelease:
     jobs:
       - unit-test
@@ -109,3 +117,8 @@ workflows:
           requires:
             - unit-test
             - android-test
+          filters:
+            branches:
+              only: main
+            tags:
+              only: /^v.*/
