@@ -81,10 +81,13 @@ jobs:
           path: app/build/outputs/apk/<< parameters.apkDir >>
 
 workflows:
-  commit:
+  test:
     jobs:
       - unit-test
   buildReview:
+    when:
+      not:
+       equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
       - android-test
@@ -94,11 +97,9 @@ workflows:
           requires:
             - unit-test
             - android-test
-          filters:
-            branches:
-              ignore:
-                - main
   buildSnapshot:
+    when:
+      equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
       - android-test
@@ -108,11 +109,12 @@ workflows:
           requires:
             - unit-test
             - android-test
-          filters:
-            branches:
-              only:
-                - main
   buildRelease:
+    when:
+      and:
+        # Main branch + tag
+        - << pipeline.git.tag >>
+        - equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
       - android-test
@@ -122,8 +124,3 @@ workflows:
           requires:
             - unit-test
             - android-test
-          filters:
-            branches:
-              only: main
-            tags:
-              only: /^v.*/
