@@ -32,13 +32,12 @@ jobs:
           name: Save test results
           command: |
             mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+            find . -type f -regex ".*/build/test-results/.*/.*xml" -exec cp {} ~/test-results/junit/ \;
           when: always
       - store_test_results:
           path: ~/test-results
       - store_artifacts:
           path: ~/test-results/junit
-
 
   android-test:
     executor:
@@ -62,22 +61,63 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
-  release-build:
+  build:
     executor:
       name: android/android-machine
       resource-class: large
-      tag: 2022.04
+    parameters:
+      task:
+        type: string
+      apkDir:
+        type: string
     steps:
       - checkout
       - pop
       - run:
           name: Assemble release build
           command: |
-            ./gradlew assembleRelease
+            ./gradlew << parameters.task >> -PversionCode=$CIRCLE_BUILD_NUM
       - store_artifacts:
-          path: app/build/outputs/apk/release
+          path: app/build/outputs/apk/<< parameters.apkDir >>
 
 workflows:
-  commit:
+  buildReview:
+    when:
+      not:
+       equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
+      - android-test
+      - build:
+          task: assembleReview
+          apkDir: review
+          requires:
+            - unit-test
+            - android-test
+  buildSnapshot:
+    when:
+      equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - unit-test
+      - android-test
+      - build:
+          task: assembleSnapshot
+          apkDir: snapshot
+          requires:
+            - unit-test
+            - android-test
+  buildRelease:
+    when:
+      and:
+        # Main branch + tag
+        - << pipeline.git.tag >>
+        - equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - unit-test
+      - android-test
+      - build:
+          task: assembleRelease
+          apkDir: release
+          requires:
+            - unit-test
+            - android-test

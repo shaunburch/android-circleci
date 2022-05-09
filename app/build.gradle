@@ -10,8 +10,8 @@ android {
         applicationId "ch.shaunbur.androidci"
         minSdk 23
         targetSdk 31
-        versionCode 1
-        versionName "1.0"
+        versionCode project.versionCode.toInteger()
+        versionName project.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,21 +26,15 @@ android {
         }
         debug {
             debuggable true
-            applicationIdSuffix ".dev"
         }
-        staging {
-            initWith debug
-            applicationIdSuffix ".staging"
-        }
-    }
-    flavorDimensions "lane"
-    productFlavors {
-        // Feature builds
         review {
+            initWith release
             versionNameSuffix "-review"
+            applicationIdSuffix ".review"
         }
         // Snapshot of develop / main
         snapshot {
+            initWith release
             versionNameSuffix "-SNAPSHOT"
         }
     }
