@@ -81,9 +81,6 @@ jobs:
           path: app/build/outputs/apk/<< parameters.apkDir >>
 
 workflows:
-  test:
-    jobs:
-      - unit-test
   buildReview:
     when:
       not:
