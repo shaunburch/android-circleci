@@ -29,8 +29,8 @@ android {
         }
         review {
             initWith release
-            versionNameSuffix "-review"
-            applicationIdSuffix ".review"
+            versionNameSuffix "-$project.versionSuffix"
+            applicationIdSuffix ".$project.versionSuffix"
         }
         // Snapshot of develop / main
         snapshot {

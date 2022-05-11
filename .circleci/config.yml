@@ -70,13 +70,27 @@ jobs:
         type: string
       apkDir:
         type: string
+      verCode:
+        default: $CIRCLE_BUILD_NUM
+        type: string
+      verName:
+        default: ""
+        type: string
+      verSuffix:
+        default: ""
+        type: string
     steps:
       - checkout
       - pop
       - run:
           name: Assemble release build
           command: |
-            ./gradlew << parameters.task >> -PversionCode=$CIRCLE_BUILD_NUM
+            name=<< parameters.verName >>
+            suffix=<< parameters.verSuffix >>
+
+            ./gradlew << parameters.task >> -PversionCode=<< parameters.verCode >> \
+            ${name:+-PversionName=$name} \
+            ${suffix:+-PversionSuffix=$suffix}
       - store_artifacts:
           path: app/build/outputs/apk/<< parameters.apkDir >>
 
@@ -84,13 +98,14 @@ workflows:
   buildReview:
     when:
       not:
-       equal: [ main, << pipeline.git.branch >> ]
+        equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
       - android-test
       - build:
           task: assembleReview
           apkDir: review
+          verSuffix: test
           requires:
             - unit-test
             - android-test
@@ -118,6 +133,7 @@ workflows:
       - build:
           task: assembleRelease
           apkDir: release
+          verName: << pipeline.git.tag >>
           requires:
             - unit-test
             - android-test
