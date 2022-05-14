@@ -16,6 +16,13 @@ commands:
     steps:
       - android/save-gradle-cache
       - android/save-build-cache
+  issue-regex:
+    description: "Extract Issue ID from branch name"
+    parameters:
+      branch:
+        type: string
+    steps:
+      - run: echo << parameters.branch >> | grep -P '^(\d*?)(?=\-|_)' -o # digits until - or _
 
 jobs:
   unit-test:
@@ -70,13 +77,27 @@ jobs:
         type: string
       apkDir:
         type: string
+      verCode:
+        default: $CIRCLE_BUILD_NUM
+        type: string
+      verName:
+        default: ""
+        type: string
+      verSuffix:
+        default: ""
+        type: string
     steps:
       - checkout
       - pop
       - run:
           name: Assemble release build
           command: |
-            ./gradlew << parameters.task >> -PversionCode=$CIRCLE_BUILD_NUM
+            name=<< parameters.verName >>
+            suffix=$(echo << parameters.verSuffix >> | grep -Pio '^(\d*?)(?=\-|_)')
+
+            ./gradlew << parameters.task >> -PversionCode=<< parameters.verCode >> \
+            ${name:+-PversionName=$name} \
+            ${suffix:+-PversionSuffix=$suffix}
       - store_artifacts:
           path: app/build/outputs/apk/<< parameters.apkDir >>
 
@@ -84,13 +105,14 @@ workflows:
   buildReview:
     when:
       not:
-       equal: [ main, << pipeline.git.branch >> ]
+        equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - unit-test
       - android-test
       - build:
           task: assembleReview
           apkDir: review
+          verSuffix: << pipeline.git.branch >>
           requires:
             - unit-test
             - android-test
@@ -118,6 +140,7 @@ workflows:
       - build:
           task: assembleRelease
           apkDir: release
+          verName: << pipeline.git.tag >>
           requires:
             - unit-test
             - android-test
