@@ -5,7 +5,7 @@ plugins {
 
 android {
     compileSdk 31
-
+    namespace 'ch.shaunbur.androidci'
     defaultConfig {
         applicationId "ch.shaunbur.androidci"
         minSdk 23

@@ -93,11 +93,11 @@ jobs:
           name: Assemble release build
           command: |
             name=<< parameters.verName >>
-            suffix=$(echo << parameters.verSuffix >> | grep -Pio '^(\d*?)(?=\-|_)')
+            suffix=<< parameters.verSuffix >>
 
             ./gradlew << parameters.task >> -PversionCode=<< parameters.verCode >> \
             ${name:+-PversionName=$name} \
-            ${suffix:+-PversionSuffix=$suffix}
+            ${suffix:+-PversionSuffix=$(echo $suffix | grep -Pio '^(\d*?)(?=\-|_)')}
       - store_artifacts:
           path: app/build/outputs/apk/<< parameters.apkDir >>
 
