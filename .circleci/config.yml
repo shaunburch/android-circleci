@@ -16,6 +16,13 @@ commands:
     steps:
       - android/save-gradle-cache
       - android/save-build-cache
+  issue-regex:
+    description: "Extract Issue ID from branch name"
+    parameters:
+      branch:
+        type: string
+    steps:
+      - run: echo << parameters.branch >> | grep -P '^(\d*?)(?=\-|_)' -o # digits until - or _
 
 jobs:
   unit-test:
@@ -86,7 +93,7 @@ jobs:
           name: Assemble release build
           command: |
             name=<< parameters.verName >>
-            suffix=<< parameters.verSuffix >>
+            suffix=echo << parameters.verSuffix >> | grep -P '^(\d*?)(?=\-|_)' -o
 
             ./gradlew << parameters.task >> -PversionCode=<< parameters.verCode >> \
             ${name:+-PversionName=$name} \
@@ -105,7 +112,7 @@ workflows:
       - build:
           task: assembleReview
           apkDir: review
-          verSuffix: test
+          verSuffix: << pipeline.git.branch >>
           requires:
             - unit-test
             - android-test
