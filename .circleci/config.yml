@@ -93,7 +93,7 @@ jobs:
           name: Assemble release build
           command: |
             name=<< parameters.verName >>
-            suffix=echo << parameters.verSuffix >> | grep -Pio '^(\d*?)(?=\-|_)'
+            suffix=$(echo << parameters.verSuffix >> | grep -Pio '^(\d*?)(?=\-|_)')
 
             ./gradlew << parameters.task >> -PversionCode=<< parameters.verCode >> \
             ${name:+-PversionName=$name} \
